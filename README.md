@@ -1,4 +1,4 @@
-# GODOT-Character-Movement-Component
+# Godot-Character-Movement-Component
 
 This is the development of a movement component designed to be attached to a character (CharacterBody3D node)
 
