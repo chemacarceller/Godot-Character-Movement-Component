@@ -376,6 +376,7 @@ var _changedDirection : bool = false
 # Two possibilities Runing or Walking
 var _isRuning : bool = false
 
+var _isWalking : bool = false
 
 # Indicates if the character is moving or idle
 var _isMoving : bool = true
@@ -910,7 +911,11 @@ func set_decelerationSpeed(value : float) :
 func get_decelerationSpeed() -> float :
 	return decelerationSpeed
 
+func get_isWalking() -> bool :
+	return get_isMoving() and (not get_isRuning() and not get_isJumping() and not get_isFalling())
 
+func set_isWalking(value : bool):
+	_isWalking = value
 
 # ===================================================================================================
 #
@@ -928,6 +933,7 @@ func get_context() -> BasicCharacterMovementData:
 	context.isMoving = get_isMoving()
 	context.isPushing = get_isPushing()
 	context.isJumping = get_isJumping()
+	context.isWalking = get_isWalking()
 	context.JumpKeyPressed = _JumpKeyPressed
 	context.isFalling = get_isFalling()
 	context.isDoingRotation = get_isDoingRotation()
@@ -947,6 +953,7 @@ func set_context(context : BasicCharacterMovementData):
 	set_isMoving(context.isMoving)
 	set_isPushing(context.isPushing)
 	set_isJumping(context.isJumping)
+	set_isWalking(context.isWalking)
 	_JumpKeyPressed = context.JumpKeyPressed
 	set_isFalling(context.isFalling)
 	set_inputDir(context.inputDir)

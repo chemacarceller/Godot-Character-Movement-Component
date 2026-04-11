@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://bxeu4tsp3s7rv"]
+[gd_scene format=3 uid="uid://bxeu4tsp3s7rv"]
 
-[ext_resource type="Script" uid="uid://bxxddenpy4w4y" path="res://utils/components/movements/basic_character_movement_chb.gd" id="1_c81ep"]
+[ext_resource type="Script" uid="uid://bxxddenpy4w4y" path="res://main/plugins/components/movements/basic_character_movement_chb.gd" id="1_c81ep"]
 
 [node name="BasicCharacterMovement" type="Node"]
 script = ExtResource("1_c81ep")

@@ -1,6 +1,6 @@
 # Structure to store the basic character movement context
 
-class_name BasicCharacterMovementData extends Node
+class_name BasicCharacterMovementData extends RefCounted
 
 var state : BasicCharacterMovementComponent.MOVEMENT_STATE = BasicCharacterMovementComponent.MOVEMENT_STATE.IDLE
 var directionstate : BasicCharacterMovementComponent.DIRECTION_MODE = BasicCharacterMovementComponent.DIRECTION_MODE.NONE
@@ -9,6 +9,7 @@ var isRuning : bool = false
 var isMoving : bool = false
 var isPushing : bool = false
 var isJumping : bool = false
+var isWalking : bool = false
 var JumpKeyPressed : bool = false
 var isFalling : bool = false
 var isDoingRotation : bool = false
