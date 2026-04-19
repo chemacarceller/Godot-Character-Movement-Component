@@ -373,7 +373,7 @@ var _changedDirection : bool = false
 
 # Flags indicating different states of the movementcomponent
 # _isRuning indicates if the character is running or not
-# Two possibilities Runing or Walking
+# Two possibilities Runing or Walking. They are always opposites; it indicates whether, in case of movement, it would move by walking or running.
 var _isRuning : bool = false
 
 var _isWalking : bool = false
@@ -850,10 +850,13 @@ func get_isRuning() -> bool:
 
 func set_isRuning(value : bool):
 	_isRuning = value
+	_isWalking = not value
 	set_accelerationSpeed(get_accelerationSpeed())
 	set_decelerationSpeed(get_decelerationSpeed())
 	if movementMode == MOVEMENT_MODE.ONESPEED :
 		_isRuning = true
+		_isWalking = false
+		_state = MOVEMENT_STATE.RUNING
 
 
 func get_isPushing() -> bool:
@@ -912,10 +915,24 @@ func get_decelerationSpeed() -> float :
 	return decelerationSpeed
 
 func get_isWalking() -> bool :
-	return get_isMoving() and (not get_isRuning() and not get_isJumping() and not get_isFalling())
+	return _isWalking
 
-func set_isWalking(value : bool):
+func set_isWalking(value : bool) :
+	_isRuning = not value
 	_isWalking = value
+	if movementMode == MOVEMENT_MODE.ONESPEED :
+		_isRuning = true
+		_isWalking = false
+		_state = MOVEMENT_STATE.RUNING
+		set_accelerationSpeed(get_accelerationSpeed())
+		set_decelerationSpeed(get_decelerationSpeed())
+
+func get_direction() -> Vector3 :
+	return _direction
+
+func set_direction(value : Vector3):
+	_direction = value
+
 
 # ===================================================================================================
 #
@@ -939,7 +956,7 @@ func get_context() -> BasicCharacterMovementData:
 	context.isDoingRotation = get_isDoingRotation()
 	context.inputDir = get_inputDir()
 	context.prevDirection = _prevDirection
-	context.direction = _direction
+	context.direction = get_direction()
 
 	return context
 
@@ -958,7 +975,7 @@ func set_context(context : BasicCharacterMovementData):
 	set_isFalling(context.isFalling)
 	set_inputDir(context.inputDir)
 	_prevDirection = context.prevDirection
-	_direction = context.direction
+	set_direction(context.direction)
 
 
 
