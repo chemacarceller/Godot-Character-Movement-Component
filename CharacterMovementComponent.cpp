@@ -1,5 +1,8 @@
 #include "CharacterMovementComponent.h"
 
+// It provides the interface to ClassDB, Godot's internal database of all registered classes
+#include <godot_cpp/core/class_db.hpp>
+
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/input_map.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -186,6 +189,15 @@ void CharacterMovementComponent::_bind_methods() {
     BIND_ENUM_CONSTANT(RIGHTBACK);
     BIND_ENUM_CONSTANT(FORWARD);
     BIND_ENUM_CONSTANT(BACKWARD);
+
+    BIND_ENUM_CONSTANT(MOVEMENT_STATE_CHANGED);
+    BIND_ENUM_CONSTANT(DIRECTION_MODE_CHANGED);
+
+
+    ADD_SIGNAL(MethodInfo("CharacterMovementSignal", 
+        PropertyInfo(Variant::INT, "eventName", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "EVENT_TYPE"), 
+        PropertyInfo(Variant::DICTIONARY, "additionalInfo")
+    ));
 }
 
 
@@ -204,6 +216,10 @@ CharacterMovementComponent::~CharacterMovementComponent() {}
 
 
 void CharacterMovementComponent::_ready() {
+
+    emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  []() { godot::Dictionary d; d["data"] = MOVEMENT_STATE::IDLE; return d; }());
+    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  []() { godot::Dictionary d; d["data"] = DIRECTION_MODE::NONE; return d; }());
+
     if (Engine::get_singleton()->is_editor_hint()) return;
 
     myCharacter = Object::cast_to<CharacterBody3D>(get_parent());

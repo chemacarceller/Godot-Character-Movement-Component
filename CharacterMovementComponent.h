@@ -47,6 +47,11 @@ class CharacterMovementComponent : public Node {
 
 public:
 
+    enum EVENT_TYPE {
+        MOVEMENT_STATE_CHANGED,
+        DIRECTION_MODE_CHANGED
+    };
+
     // --- CHARACTERMOVEMENTCOMPONENTS ENUMS ---
 
     // Movement state's options
@@ -479,6 +484,7 @@ VARIANT_ENUM_CAST(CharacterMovementComponent::MOVEMENT_STATE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::MOVEMENT_MODE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::CHANGEDIRECTION_MODE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::DIRECTION_MODE);
+VARIANT_ENUM_CAST(CharacterMovementComponent::EVENT_TYPE);
 
 
 
