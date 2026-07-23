@@ -84,8 +84,9 @@ void CharacterMovementComponent::_bind_methods() {
 
 
 
-
+    ClassDB::bind_method(D_METHOD("set_movementState", "value"), &CharacterMovementComponent::set_movementState);
     ClassDB::bind_method(D_METHOD("get_movementState"), &CharacterMovementComponent::get_movementState);
+    ClassDB::bind_method(D_METHOD("set_directionMode", "value"), &CharacterMovementComponent::set_directionMode);
     ClassDB::bind_method(D_METHOD("get_directionMode"), &CharacterMovementComponent::get_directionMode);
 
     ClassDB::bind_method(D_METHOD("get_speed"), &CharacterMovementComponent::get_speed);
@@ -196,80 +197,7 @@ CharacterMovementData::CharacterMovementData() {}
 
 CharacterMovementData::~CharacterMovementData() {}
 
-CharacterMovementComponent::CharacterMovementComponent() {
-
-    set_enabled(true);
-
-    set_movementMode(MOVEMENT_MODE::TWOSPEEDS);
-
-    set_characterMass(75.0f);
-    set_characterForceFactor(1.0f);
-
-    set_armature(nullptr);
-    set_directionalObject(nullptr);
-    set_characterRotation(true);
-
-    set_leftInput("");
-    set_rightInput("");
-    set_frontInput("");
-    set_rearInput("");
-    set_jumpInput("");
-    set_leftRotationEnabled(true);
-    set_rightRotationEnabled(true);
-    set_frontRotationEnabled(true);
-    set_rearRotationEnabled(true);
-
-    set_accelerationSpeed(15.0f);
-    set_decelerationSpeed(15.0f);
-    set_transitionTime(0.25f);
-    set_changeDirectionMode(CHANGEDIRECTION_MODE::FIFTY);
-
-    set_walk_speed(3.0f);
-    set_run_speed(6.0f);
-    set_max_speed(10.0f);
-    set_jump_velocity(4.2f);
-    set_speed_kept_by_jumping(0.4f);
-    set_speed_kept_by_falling(0.4f);
-
-    set_minMassRatioAllowed(0.5f);
-    set_maxMassRatioAllowed(30.0f);
-
-    myCharacter = nullptr;
-
-    movementState = MOVEMENT_STATE::IDLE;
-    directionMode = DIRECTION_MODE::NONE;
-
-    oldSpeed = 0.0f;
-    set_speed(isRuning ? _RUN_SPEED : _WALK_SPEED);
-
-    changedDirection = false;
-
-    set_isRuning(false);
-    set_isWalking(false);
-    set_isMoving(true);
-    set_isPushing(false);
-    set_isJumping(false);
-    set_isFalling(false);
-    set_isDoingRotation(false);
-    JumpKeyPressed = false;
-
-    set_inputDir(Vector2(0.0f, 0.0f));
-    prevDirection = Vector3(0.0f, 0.0f, 0.0f);
-
-    set_direction(Vector3(0.0f, 0.0f, 0.0f)); 
-
-    existFrontInput = false; existRearInput = false;
-    existLeftInput = false;  existRightInput = false;
-    existJumpInput = false;
-
-    armatureComponentTarget = nullptr;
-    rotOldAngle = 0.0f; rotNewAngle = 0.0f; rotStep = 0.0f;
-
-    collisionHullsArrayOffset = godot::TypedArray<float>();
-
-    accelerationTime = _WALK_SPEED / _accelerationSpeed;
-    decelerationTime = _WALK_SPEED / _decelerationSpeed;
-}
+CharacterMovementComponent::CharacterMovementComponent() {}
 
 CharacterMovementComponent::~CharacterMovementComponent() {}
 
@@ -281,10 +209,10 @@ void CharacterMovementComponent::_ready() {
     myCharacter = Object::cast_to<CharacterBody3D>(get_parent());
 
     if (_armature == nullptr && myCharacter != nullptr) {
-        UtilityFunctions::print("BasicCharacterMovement : The Parent class " + myCharacter->get_name() + " doesn't have specified the armature component");
+        UtilityFunctions::print("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the armature component");
     }
     if (_directionalObject == nullptr && myCharacter != nullptr) {
-        UtilityFunctions::print("BasicCharacterMovement : The Parent class " + myCharacter->get_name() + " doesn't have specified the directionalObject component");
+        UtilityFunctions::print("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the directionalObject component");
     }
 
     InputMap *input_map = InputMap::get_singleton();
@@ -545,130 +473,6 @@ void CharacterMovementComponent::pushAwwayRigidbody() {
         }
     }
 }
-
-
-void CharacterMovementComponent::set_enabled(const bool value) { _isEnabled = value; }
-bool CharacterMovementComponent::is_enabled() const { return _isEnabled; }
-
-void CharacterMovementComponent::set_movementMode(const MOVEMENT_MODE value) { _movementMode = value; notify_property_list_changed(); }
-CharacterMovementComponent::MOVEMENT_MODE CharacterMovementComponent::get_movementMode() const { return _movementMode; }
-
-void CharacterMovementComponent::set_characterMass(const float value) { _characterMass = value; }
-float CharacterMovementComponent::get_characterMass() const { return _characterMass; }
-void CharacterMovementComponent::set_characterForceFactor(const float value) { _characterForceFactor = value; }
-float CharacterMovementComponent::get_characterForceFactor() const { return _characterForceFactor; }
-
-void CharacterMovementComponent::set_armature(Node3D *p_value) { _armature = p_value; }
-Node3D *CharacterMovementComponent::get_armature() const { return _armature; }
-void CharacterMovementComponent::set_directionalObject(Node3D *value) { _directionalObject = value; }
-Node3D *CharacterMovementComponent::get_directionalObject() const { return _directionalObject; }
-void CharacterMovementComponent::set_collisionHullsArray(const TypedArray<CollisionShape3D> value) { _collisionHullsArray = value; }
-TypedArray<CollisionShape3D> CharacterMovementComponent::get_collisionHullsArray() const { return _collisionHullsArray; }
-void CharacterMovementComponent::set_characterRotation(const bool value) { _characterRotation = value; }
-bool CharacterMovementComponent::get_characterRotation() const { return _characterRotation; }
-
-void CharacterMovementComponent::set_leftInput(const String value) { _leftInput = value; }
-String CharacterMovementComponent::get_leftInput() const { return _leftInput; }
-void CharacterMovementComponent::set_leftRotationEnabled(const bool value) { _leftRotationEnabled = value; }
-bool CharacterMovementComponent::get_leftRotationEnabled() const { return _leftRotationEnabled; }
-void CharacterMovementComponent::set_rightInput(const String value) { _rightInput = value; }
-String CharacterMovementComponent::get_rightInput() const { return _rightInput; }
-void CharacterMovementComponent::set_rightRotationEnabled(const bool value) { _rightRotationEnabled = value; }
-bool CharacterMovementComponent::get_rightRotationEnabled() const { return _rightRotationEnabled; }
-void CharacterMovementComponent::set_frontInput(const String value) { _frontInput = value; }
-String CharacterMovementComponent::get_frontInput() const { return _frontInput; }
-void CharacterMovementComponent::set_frontRotationEnabled(const bool value) { _frontRotationEnabled = value; }
-bool CharacterMovementComponent::get_frontRotationEnabled() const { return _frontRotationEnabled; }
-void CharacterMovementComponent::set_rearInput(const String value) { _rearInput = value; }
-String CharacterMovementComponent::get_rearInput() const { return _rearInput; }
-void CharacterMovementComponent::set_rearRotationEnabled(const bool value) { _rearRotationEnabled = value; }
-bool CharacterMovementComponent::get_rearRotationEnabled() const { return _rearRotationEnabled; }
-void CharacterMovementComponent::set_jumpInput(const String value) { _jumpInput = value; }
-String CharacterMovementComponent::get_jumpInput() const { return _jumpInput; }
-
-void CharacterMovementComponent::set_accelerationSpeed(const float value) { _accelerationSpeed = value; accelerationTime = (get_isRuning() ? _RUN_SPEED : _WALK_SPEED) / _accelerationSpeed; }
-float CharacterMovementComponent::get_accelerationSpeed() const { return _accelerationSpeed; }
-void CharacterMovementComponent::set_decelerationSpeed(const float value) { _decelerationSpeed = value; decelerationTime = (get_isRuning() ? _RUN_SPEED : _WALK_SPEED) / _decelerationSpeed; }
-float CharacterMovementComponent::get_decelerationSpeed() const { return _decelerationSpeed; }
-void CharacterMovementComponent::set_transitionTime(const float value) { _transitionTime = value; }
-float CharacterMovementComponent::get_transitionTime() const { return _transitionTime; }
-void CharacterMovementComponent::set_changeDirectionMode(const CHANGEDIRECTION_MODE value) { _changeDirectionMode = value; notify_property_list_changed(); }
-CharacterMovementComponent::CHANGEDIRECTION_MODE CharacterMovementComponent::get_changeDirectionMode() const { return _changeDirectionMode; }
-
-void CharacterMovementComponent::set_walk_speed(const float value) { _WALK_SPEED = value; }
-float CharacterMovementComponent::get_walk_speed() const { return _WALK_SPEED; }
-void CharacterMovementComponent::set_run_speed(const float value) { _RUN_SPEED = value; }
-float CharacterMovementComponent::get_run_speed() const { return _RUN_SPEED; }
-void CharacterMovementComponent::set_max_speed(const float value) { _MAX_SPEED = value; _RUN_SPEED = _MAX_SPEED; set_isRuning(true); }
-float CharacterMovementComponent::get_max_speed() const { return _MAX_SPEED; }
-void CharacterMovementComponent::set_jump_velocity(const float value) { _JUMP_VELOCITY = value; }
-float CharacterMovementComponent::get_jump_velocity() const { return _JUMP_VELOCITY; }
-void CharacterMovementComponent::set_speed_kept_by_jumping(const float value) { _SPEED_KEPT_BY_JUMPING = value; }
-float CharacterMovementComponent::get_speed_kept_by_jumping() const { return _SPEED_KEPT_BY_JUMPING; }
-void CharacterMovementComponent::set_speed_kept_by_falling(const float value) { _SPEED_KEPT_BY_FALLING = value; }
-float CharacterMovementComponent::get_speed_kept_by_falling() const { return _SPEED_KEPT_BY_FALLING; }
-
-void CharacterMovementComponent::set_minMassRatioAllowed(const float value) { _minMassRatioAllowed = value; }
-float CharacterMovementComponent::get_minMassRatioAllowed() const { return _minMassRatioAllowed; }
-void CharacterMovementComponent::set_maxMassRatioAllowed(const float value) { _maxMassRatioAllowed = value; }
-float CharacterMovementComponent::get_maxMassRatioAllowed() const { return _maxMassRatioAllowed; }
-
-CharacterMovementComponent::MOVEMENT_STATE CharacterMovementComponent::get_movementState() const { return movementState; }
-CharacterMovementComponent::DIRECTION_MODE CharacterMovementComponent::get_directionMode() const { return directionMode; }
-
-float CharacterMovementComponent::get_speed() const { return speed; }
-void CharacterMovementComponent::set_speed(float value) { speed = value; }
-
-bool CharacterMovementComponent::get_isRuning() const { return isRuning; }
-void CharacterMovementComponent::set_isRuning(bool value) {
-    isRuning = value; 
-    isWalking = !value;
-    set_accelerationSpeed(get_accelerationSpeed());
-    set_decelerationSpeed(get_decelerationSpeed());
-    if (_movementMode == MOVEMENT_MODE::ONESPEED) {
-        isRuning = true; 
-        isWalking = false; 
-        movementState = MOVEMENT_STATE::RUNING;
-    }
-}
-
-bool CharacterMovementComponent::get_isWalking() const { return isWalking; }
-void CharacterMovementComponent::set_isWalking(bool value) {
-    isRuning = !value; 
-    isWalking = value;
-    if (_movementMode == MOVEMENT_MODE::ONESPEED) {
-        isRuning = true; 
-        isWalking = false; 
-        movementState = MOVEMENT_STATE::RUNING;
-        set_accelerationSpeed(get_accelerationSpeed());
-        set_decelerationSpeed(get_decelerationSpeed());
-    }
-}
-
-bool CharacterMovementComponent::get_isMoving() const { return isMoving; }
-void CharacterMovementComponent::set_isMoving(bool value) { isMoving = value; }
-
-bool CharacterMovementComponent::get_isPushing() const { return isPushing; }
-void CharacterMovementComponent::set_isPushing(bool value) { isPushing = value; }
-
-bool CharacterMovementComponent::get_isFalling() const { return isFalling; }
-void CharacterMovementComponent::set_isFalling(bool value) { isFalling = value; }
-
-bool CharacterMovementComponent::get_isJumping() const { return isJumping; }
-void CharacterMovementComponent::set_isJumping(bool value) { isJumping = value; }
-
-bool CharacterMovementComponent::get_isDoingRotation() const { return isDoingRotation; }
-void CharacterMovementComponent::set_isDoingRotation(bool value) { isDoingRotation = value; }
-
-Vector2 CharacterMovementComponent::get_inputDir() const { return inputDir; }
-void CharacterMovementComponent::set_inputDir(Vector2 value) { inputDir = value; }
-
-Vector3 CharacterMovementComponent::get_direction() const { return direction; }
-void CharacterMovementComponent::set_direction(Vector3 value) { direction = value; }
-
-
-
-
 
 
 void CharacterMovementComponent::stop_movement() { set_isMoving(false); }
