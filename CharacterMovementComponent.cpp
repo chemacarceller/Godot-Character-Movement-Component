@@ -95,6 +95,8 @@ void CharacterMovementComponent::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_speed"), &CharacterMovementComponent::get_speed);
     ClassDB::bind_method(D_METHOD("set_speed", "value"), &CharacterMovementComponent::set_speed);
 
+    ClassDB::bind_method(D_METHOD("get_isRunOrWalk"), &CharacterMovementComponent::get_isRunOrWalk);
+    ClassDB::bind_method(D_METHOD("set_isRunOrWalk", "value"), &CharacterMovementComponent::set_isRunOrWalk);
     ClassDB::bind_method(D_METHOD("get_isRuning"), &CharacterMovementComponent::get_isRuning);
     ClassDB::bind_method(D_METHOD("set_isRuning", "value"), &CharacterMovementComponent::set_isRuning);
     ClassDB::bind_method(D_METHOD("get_isWalking"), &CharacterMovementComponent::get_isWalking);
@@ -217,9 +219,6 @@ CharacterMovementComponent::~CharacterMovementComponent() {}
 
 void CharacterMovementComponent::_ready() {
 
-    emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  []() { godot::Dictionary d; d["data"] = MOVEMENT_STATE::IDLE; return d; }());
-    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  []() { godot::Dictionary d; d["data"] = DIRECTION_MODE::NONE; return d; }());
-
     if (Engine::get_singleton()->is_editor_hint()) return;
 
     myCharacter = Object::cast_to<CharacterBody3D>(get_parent());
@@ -254,9 +253,7 @@ void CharacterMovementComponent::_ready() {
 
     set_accelerationSpeed(get_accelerationSpeed());
     set_decelerationSpeed(get_decelerationSpeed());
-    if (_movementMode == MOVEMENT_MODE::ONESPEED) {
-        set_max_speed(get_max_speed());
-    }
+    if (_movementMode == MOVEMENT_MODE::ONESPEED) set_max_speed(get_max_speed());
 }
 
 void CharacterMovementComponent::_physics_process(double delta) {
@@ -265,48 +262,47 @@ void CharacterMovementComponent::_physics_process(double delta) {
     float _rotationAngle = 0.0f;
     Input *input = Input::get_singleton();
 
-    if (_isEnabled && myCharacter != nullptr) {
+     if (_isEnabled && myCharacter != nullptr) {
+
         if (existJumpInput) {
-            if (input->is_action_just_pressed(_jumpInput) && myCharacter->is_on_floor()) {
+
+            // && myCharacter->is_on_floor()
+            if (input->is_action_just_pressed(_jumpInput)) {
+                UtilityFunctions::print("KKKKKKKKKKKKKKKKKKKKKKKKK");
+                set_isJumping(true);
+                JumpKeyPressed = true;
                 Vector3 velocity = myCharacter->get_velocity();
                 velocity.y = _JUMP_VELOCITY;
                 myCharacter->set_velocity(velocity);
-                JumpKeyPressed = true;
-                set_isJumping(true);
             } else {
-                if (myCharacter->is_on_floor()) {
-                    set_isJumping(false);
-                }
                 JumpKeyPressed = false;
-                if (isMoving) {
-                    movementState = isRuning ? MOVEMENT_STATE::RUNING : MOVEMENT_STATE::WALKING;
-                } else {
-                    movementState = MOVEMENT_STATE::IDLE;
-                }
+                if (myCharacter->is_on_floor()) { 
+                    set_isJumping(false);
+                    if (isMoving) {
+                        if (isRunOrWalk) set_isRuning(true); 
+                        else set_isWalking(true); 
+                    }
+                } 
             }
-        }
-
-        if (!myCharacter->is_on_floor() && ! JumpKeyPressed) {
-            Vector3 velocity = myCharacter->get_velocity();
-            velocity += myCharacter->get_gravity() * (float)delta;
-            myCharacter->set_velocity(velocity);
-            if (! isJumping) {
-                set_isFalling(true);
+        } 
+  
+        if (! myCharacter->is_on_floor()) {
+            if (! JumpKeyPressed) {
+                Vector3 velocity = myCharacter->get_velocity();
+                velocity += myCharacter->get_gravity() * (float)delta;
+                myCharacter->set_velocity(velocity);
+                if (! isJumping) set_isFalling(true);
             }
         } else {
             set_isFalling(false);
             if (isMoving) {
-                movementState = isRuning ? MOVEMENT_STATE::RUNING : MOVEMENT_STATE::WALKING;
-            } else {
-                movementState = MOVEMENT_STATE::IDLE;
+                if (isRunOrWalk) set_isRuning(true); 
+                else set_isWalking(true); 
             }
         }
 
-        if (isFalling) movementState = MOVEMENT_STATE::FALLING;
-        if (isJumping) movementState = MOVEMENT_STATE::JUMPING;
-
         if (! isJumping && ! isFalling) {
-            if (! existLeftInput || ! existRightInput) {
+             if (! existLeftInput || ! existRightInput) {
                 if (existFrontInput && existRearInput) {
                     set_inputDir(Vector2(0.0f, 1.0f) * (input->get_action_strength(_rearInput) - input->get_action_strength(_frontInput)));
                 } else {
@@ -322,15 +318,63 @@ void CharacterMovementComponent::_physics_process(double delta) {
                 set_inputDir(input->get_vector(_leftInput, _rightInput, _frontInput, _rearInput));
             }
 
-            if (inputDir == Vector2(1.0f, 0.0f))       directionMode = DIRECTION_MODE::STRAIFRIGHT;
-            else if (inputDir == Vector2(-1.0f, 0.0f)) directionMode = DIRECTION_MODE::STRAIFLEFT;
-            else if (inputDir == Vector2(0.0f, 1.0f))  directionMode = DIRECTION_MODE::BACKWARD;
-            else if (inputDir == Vector2(0.0f, -1.0f)) directionMode = DIRECTION_MODE::FORWARD;
+            if (inputDir == Vector2(1.0f, 0.0f)){ 
+                directionMode = DIRECTION_MODE::STRAIFRIGHT;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir == Vector2(-1.0f, 0.0f)) { 
+                directionMode = DIRECTION_MODE::STRAIFLEFT;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir == Vector2(0.0f, 1.0f))  { 
+                directionMode = DIRECTION_MODE::BACKWARD;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir == Vector2(0.0f, -1.0f)) {
+                directionMode = DIRECTION_MODE::FORWARD;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
 
-            if (inputDir.is_equal_approx(Vector2(1.0f, 1.0f).normalized()))        directionMode = DIRECTION_MODE::RIGHTBACK;
-            else if (inputDir.is_equal_approx(Vector2(1.0f, -1.0f).normalized()))   directionMode = DIRECTION_MODE::RIGHTFOR;
-            else if (inputDir.is_equal_approx(Vector2(-1.0f, 1.0f).normalized()))  directionMode = DIRECTION_MODE::LEFTBACK;
-            else if (inputDir.is_equal_approx(Vector2(-1.0f, -1.0f).normalized())) directionMode = DIRECTION_MODE::LEFTFOR;
+            if (inputDir.is_equal_approx(Vector2(1.0f, 1.0f).normalized())) {
+                directionMode = DIRECTION_MODE::RIGHTBACK;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir.is_equal_approx(Vector2(1.0f, -1.0f).normalized())) { 
+                directionMode = DIRECTION_MODE::RIGHTFOR;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir.is_equal_approx(Vector2(-1.0f, 1.0f).normalized()))  { 
+                directionMode = DIRECTION_MODE::LEFTBACK;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
+            else if (inputDir.is_equal_approx(Vector2(-1.0f, -1.0f).normalized())) { 
+                directionMode = DIRECTION_MODE::LEFTFOR;
+                if (directionMode != directionModePrev) {
+                    directionModePrev = directionMode;
+                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                }
+            }
 
             Vector3 target_vector = Vector3(inputDir.x, 0.0f, inputDir.y).normalized();
             if (_directionalObject != nullptr) {
@@ -391,7 +435,7 @@ void CharacterMovementComponent::_physics_process(double delta) {
                 current_velocity.x = Math::move_toward(current_velocity.x, _finalSpeed.x, accel_factor);
                 current_velocity.z = Math::move_toward(current_velocity.z, _finalSpeed.z, accel_factor);
                 myCharacter->set_velocity(current_velocity);
-            }
+            } 
         } else {
             if (speed != 0.0f) { oldSpeed = speed; speed = 0.0f; }
             Vector3 current_velocity = myCharacter->get_velocity();
@@ -401,10 +445,15 @@ void CharacterMovementComponent::_physics_process(double delta) {
                 current_velocity.z = Math::move_toward(current_velocity.z, 0.0f, decel_factor);
                 myCharacter->set_velocity(current_velocity);
             } else {
-                changedDirection = false;
-                set_isMoving(false);
-                directionMode = DIRECTION_MODE::NONE;
-                if (! isFalling && ! isJumping) movementState = MOVEMENT_STATE::IDLE;
+                if (! isFalling) {
+                    changedDirection = false;
+                    set_isMoving(false);
+                    directionMode = DIRECTION_MODE::NONE;
+                    if (directionMode != directionModePrev) {
+                        directionModePrev = directionMode;
+                        emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    }
+                }
             }
         }
 
@@ -416,6 +465,42 @@ void CharacterMovementComponent::_physics_process(double delta) {
 
         if (myCharacter->move_and_slide()) {
             pushAwwayRigidbody();
+        }
+
+        if (isFalling) { 
+            movementState = MOVEMENT_STATE::FALLING;
+            if (movementState != movementStatePrev) {
+                movementStatePrev = movementState;
+                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+            }
+        }
+        else if (isJumping) { 
+            movementState = MOVEMENT_STATE::JUMPING;
+            if (movementState != movementStatePrev) {
+                movementStatePrev = movementState;
+                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+            }
+        }
+        else if (isRuning) { 
+            movementState = MOVEMENT_STATE::RUNING;
+            if (movementState != movementStatePrev) {
+                movementStatePrev = movementState;
+                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+            }
+        }
+        else if (isWalking) { 
+            movementState = MOVEMENT_STATE::WALKING;
+            if (movementState != movementStatePrev) {
+                movementStatePrev = movementState;
+                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+            }
+        }
+        else if ( ! isMoving) { 
+            movementState = MOVEMENT_STATE::IDLE;
+            if (movementState != movementStatePrev) {
+                movementStatePrev = movementState;
+                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+            }
         }
     }
 

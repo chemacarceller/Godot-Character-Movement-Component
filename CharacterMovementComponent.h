@@ -56,6 +56,7 @@ public:
 
     // Movement state's options
     enum MOVEMENT_STATE {
+        MS_NOTDEFINED,
         IDLE,
         WALKING,
         RUNING,
@@ -89,6 +90,7 @@ public:
     // Indicates the direction the character is moving can be used for animations
     // None means it is not moving
     enum DIRECTION_MODE {
+        DM_NOTDEFINED,
         NONE,
         STRAIFLEFT,
         LEFTFOR,
@@ -254,10 +256,12 @@ private:
 
     // State of the Character's movement used typically in animation tree
     MOVEMENT_STATE movementState = MOVEMENT_STATE::IDLE;
+    MOVEMENT_STATE movementStatePrev = MOVEMENT_STATE::MS_NOTDEFINED;
 
 
     // State of the Character's direction movement used typically in animation tree
     DIRECTION_MODE directionMode = DIRECTION_MODE::NONE;
+    DIRECTION_MODE directionModePrev = DIRECTION_MODE::DM_NOTDEFINED;
 
 
     // speed accesible from outside get and set method
@@ -273,25 +277,27 @@ private:
 
 
     // Flags indicating different states of the movementcomponent
-    // _isRuning indicates if the character is running or not
-    // Two possibilities Runing or Walking. They are always opposites; it indicates whether, in case of movement, it would move by walking or running.
+    // _isRuning indicates if the character is running or not at this momment
+    // _isWalking indicates if the character is walking or not at this momment
+    // isRunOrWalk indicates the state of avancing state true is Run, false is Walk
+
+    bool isRunOrWalk = false;
     bool isRuning = false;
     bool isWalking = false;
 
-    //Indicates if the character is moving or idle
-    bool isMoving = true;
+    //Indicates if the character is moving, the opposite of idle
+    bool isMoving = false;
 
     // isPushing indicates it is pushing something not used as a movement state jet
     bool isPushing = false;
 
-    
-    // isJumping indicates it is in the jumping process
+    // isJumping indicates it is in the jumping process, in this case it is moving
     bool isJumping = false;
 
     // Jumpkeypressed indicates that the jump key is pressed while on floor
     bool JumpKeyPressed = false;
 
-    // _isFalling indicates it is in the falling process
+    // _isFalling indicates it is in the falling process, in this case it is moving
     bool isFalling = false;
 
     // isDoingRotation indicates it is doing the rotation
@@ -401,7 +407,7 @@ public:
     float get_walk_speed() const { return _WALK_SPEED; }
     void set_run_speed(const float value) { _RUN_SPEED = value; }
     float get_run_speed() const { return _RUN_SPEED; }
-    void set_max_speed(const float value) { _MAX_SPEED = value; _RUN_SPEED = _MAX_SPEED; set_isRuning(true); }
+    void set_max_speed(const float value) { _MAX_SPEED = value; _RUN_SPEED = _MAX_SPEED; set_isRunOrWalk(true); }
     float get_max_speed() const { return _MAX_SPEED; }
     void set_jump_velocity(const float value) { _JUMP_VELOCITY = value; }
     float get_jump_velocity() const { return _JUMP_VELOCITY; }
@@ -429,38 +435,76 @@ public:
     float get_speed() const { return speed; }
     void set_speed(float value) { speed = value; }
 
+    bool get_isRunOrWalk() const { return isRunOrWalk; }
+    void set_isRunOrWalk(bool value) {
+        isRuning = false;
+        isWalking = false;
+        isRunOrWalk = value;
+        
+        // if the mode is ONESPEED pnly Run is possible
+        if (_movementMode == MOVEMENT_MODE::ONESPEED) isRunOrWalk = true;
+
+        // Setting the state of isRuning isWalking isJumping and isFalling depending on isRunOrWalk
+        if (isRunOrWalk && isMoving == true ) set_isRuning(true);
+        if (! isRunOrWalk && isMoving == true ) set_isWalking(true);
+    }
+
     bool get_isRuning() const { return isRuning; }
     void set_isRuning(bool value) {
-       isRuning = value; 
-        isWalking = !value;
-        set_accelerationSpeed(get_accelerationSpeed());
-        set_decelerationSpeed(get_decelerationSpeed());
-        if (_movementMode == MOVEMENT_MODE::ONESPEED) {
-            isRuning = true; 
-            isWalking = false; 
-            movementState = MOVEMENT_STATE::RUNING;
-        }
+        isRuning = value;
+        isRunOrWalk = value;
+        if (value == true) {
+            isMoving = true;
+            isWalking = false;
+            set_accelerationSpeed(get_accelerationSpeed());
+            set_decelerationSpeed(get_decelerationSpeed());
+        } else { }
     }
     bool get_isWalking() const { return isWalking; }
     void set_isWalking(bool value) {
-       isRuning = !value; 
         isWalking = value;
-        if (_movementMode == MOVEMENT_MODE::ONESPEED) {
-            isRuning = true; 
-            isWalking = false; 
-            movementState = MOVEMENT_STATE::RUNING;
+        isRunOrWalk = ! value;
+        if (value == true) {
+            isMoving = true;
+            isRuning = false; 
             set_accelerationSpeed(get_accelerationSpeed());
             set_decelerationSpeed(get_decelerationSpeed());
-        }
+            if (_movementMode == MOVEMENT_MODE::ONESPEED) {
+                isWalking = false; 
+                isRuning = true; 
+                isRunOrWalk = true;
+            }
+        } else {   }
     }
     bool get_isMoving() const { return isMoving; }
-    void set_isMoving(bool value) { isMoving = value; }
+    void set_isMoving(bool value) { 
+        isMoving = value; 
+        if (value == false) {
+            isWalking = false;
+            isRuning = false;
+        } else {  
+            if (isRunOrWalk) set_isRuning(true);
+            else set_isWalking(true);
+        }
+    }
     bool get_isPushing() const { return isPushing; }
     void set_isPushing(bool value) { isPushing = value; }
     bool get_isFalling() const { return isFalling; }
-    void set_isFalling(bool value) { isFalling = value; }
+    void set_isFalling(bool value) { 
+        isFalling = value; 
+        if (value == true) {
+            isJumping = false;
+            isMoving = false;
+        } else {  }
+    }
     bool get_isJumping() const { return isJumping; }
-    void set_isJumping(bool value) { isJumping = value; }
+    void set_isJumping(bool value) { 
+        isJumping = value; 
+        if (value == true) {
+            isFalling = false;
+            isMoving = false;
+        } else {     }
+    }
     bool get_isDoingRotation() const { return isDoingRotation; }
     void set_isDoingRotation(bool value) { isDoingRotation = value; }
 
