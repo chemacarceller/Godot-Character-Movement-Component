@@ -192,13 +192,11 @@ void CharacterMovementComponent::_bind_methods() {
     BIND_ENUM_CONSTANT(FORWARD);
     BIND_ENUM_CONSTANT(BACKWARD);
 
-    BIND_ENUM_CONSTANT(MOVEMENT_STATE_CHANGED);
-    BIND_ENUM_CONSTANT(DIRECTION_MODE_CHANGED);
-
-
-    ADD_SIGNAL(MethodInfo("CharacterMovementSignal", 
-        PropertyInfo(Variant::INT, "eventName", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "EVENT_TYPE"), 
-        PropertyInfo(Variant::DICTIONARY, "additionalInfo")
+    ADD_SIGNAL(MethodInfo("MOVEMENT_STATE_CHANGED", 
+        PropertyInfo(Variant::INT, "data")
+    ));
+    ADD_SIGNAL(MethodInfo("DIRECTION_MODE_CHANGED", 
+        PropertyInfo(Variant::INT, "data")
     ));
 }
 
@@ -268,7 +266,6 @@ void CharacterMovementComponent::_physics_process(double delta) {
 
             // && myCharacter->is_on_floor()
             if (input->is_action_just_pressed(_jumpInput)) {
-                UtilityFunctions::print("KKKKKKKKKKKKKKKKKKKKKKKKK");
                 set_isJumping(true);
                 JumpKeyPressed = true;
                 Vector3 velocity = myCharacter->get_velocity();
@@ -322,28 +319,28 @@ void CharacterMovementComponent::_physics_process(double delta) {
                 directionMode = DIRECTION_MODE::STRAIFRIGHT;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir == Vector2(-1.0f, 0.0f)) { 
                 directionMode = DIRECTION_MODE::STRAIFLEFT;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir == Vector2(0.0f, 1.0f))  { 
                 directionMode = DIRECTION_MODE::BACKWARD;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir == Vector2(0.0f, -1.0f)) {
                 directionMode = DIRECTION_MODE::FORWARD;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
 
@@ -351,28 +348,28 @@ void CharacterMovementComponent::_physics_process(double delta) {
                 directionMode = DIRECTION_MODE::RIGHTBACK;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir.is_equal_approx(Vector2(1.0f, -1.0f).normalized())) { 
                 directionMode = DIRECTION_MODE::RIGHTFOR;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir.is_equal_approx(Vector2(-1.0f, 1.0f).normalized()))  { 
                 directionMode = DIRECTION_MODE::LEFTBACK;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
             else if (inputDir.is_equal_approx(Vector2(-1.0f, -1.0f).normalized())) { 
                 directionMode = DIRECTION_MODE::LEFTFOR;
                 if (directionMode != directionModePrev) {
                     directionModePrev = directionMode;
-                    emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                    emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                 }
             }
 
@@ -451,7 +448,7 @@ void CharacterMovementComponent::_physics_process(double delta) {
                     directionMode = DIRECTION_MODE::NONE;
                     if (directionMode != directionModePrev) {
                         directionModePrev = directionMode;
-                        emit_signal("CharacterMovementSignal", EVENT_TYPE::DIRECTION_MODE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = directionMode; return d; }());
+                        emit_signal("DIRECTION_MODE_CHANGED", directionMode);
                     }
                 }
             }
@@ -471,35 +468,35 @@ void CharacterMovementComponent::_physics_process(double delta) {
             movementState = MOVEMENT_STATE::FALLING;
             if (movementState != movementStatePrev) {
                 movementStatePrev = movementState;
-                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+                emit_signal("MOVEMENT_STATE_CHANGED", movementState);
             }
         }
         else if (isJumping) { 
             movementState = MOVEMENT_STATE::JUMPING;
             if (movementState != movementStatePrev) {
                 movementStatePrev = movementState;
-                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+                emit_signal("MOVEMENT_STATE_CHANGED", movementState);
             }
         }
         else if (isRuning) { 
             movementState = MOVEMENT_STATE::RUNING;
             if (movementState != movementStatePrev) {
                 movementStatePrev = movementState;
-                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+                emit_signal("MOVEMENT_STATE_CHANGED", movementState);
             }
         }
         else if (isWalking) { 
             movementState = MOVEMENT_STATE::WALKING;
             if (movementState != movementStatePrev) {
                 movementStatePrev = movementState;
-                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+                emit_signal("MOVEMENT_STATE_CHANGED", movementState);
             }
         }
         else if ( ! isMoving) { 
             movementState = MOVEMENT_STATE::IDLE;
             if (movementState != movementStatePrev) {
                 movementStatePrev = movementState;
-                emit_signal("CharacterMovementSignal", EVENT_TYPE::MOVEMENT_STATE_CHANGED,  [this]() { godot::Dictionary d; d["data"] = movementState; return d; }());
+                emit_signal("MOVEMENT_STATE_CHANGED", movementState);
             }
         }
     }

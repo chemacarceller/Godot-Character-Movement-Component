@@ -16,7 +16,7 @@
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
 
-// We indicate that the struct CharacterMovementData is defined after
+// We indicate that the struct CharacterMovementData is defined after CharacterMovementComponent
 class CharacterMovementData;
 
 // Basic Character Movement Component
@@ -46,11 +46,6 @@ class CharacterMovementComponent : public Node {
     GDCLASS(CharacterMovementComponent, Node);
 
 public:
-
-    enum EVENT_TYPE {
-        MOVEMENT_STATE_CHANGED,
-        DIRECTION_MODE_CHANGED
-    };
 
     // --- CHARACTERMOVEMENTCOMPONENTS ENUMS ---
 
@@ -528,7 +523,6 @@ VARIANT_ENUM_CAST(CharacterMovementComponent::MOVEMENT_STATE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::MOVEMENT_MODE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::CHANGEDIRECTION_MODE);
 VARIANT_ENUM_CAST(CharacterMovementComponent::DIRECTION_MODE);
-VARIANT_ENUM_CAST(CharacterMovementComponent::EVENT_TYPE);
 
 
 
