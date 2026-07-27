@@ -213,10 +213,23 @@ void CharacterMovementComponent::_ready() {
     myCharacter = Object::cast_to<CharacterBody3D>(get_parent());
 
     if (_armature == nullptr && myCharacter != nullptr) {
-        UtilityFunctions::print("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the armature component");
+        
+        ERR_PRINT("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the armature component");
+
+        if (godot::SceneTree *tree = get_tree()) {
+            tree->quit();
+            return;
+        }
     }
+
     if (_directionalObject == nullptr && myCharacter != nullptr) {
-        UtilityFunctions::print("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the directionalObject component");
+
+        ERR_PRINT("CharacterMovementComponent : The Parent class " + myCharacter->get_name() + " doesn't have specified the directionalObject component");
+
+        if (godot::SceneTree *tree = get_tree()) {
+            tree->quit();
+            return;
+        }
     }
 
     InputMap *input_map = InputMap::get_singleton();
@@ -574,6 +587,7 @@ Ref<CharacterMovementData> CharacterMovementComponent::get_context() {
     context->movementState = movementState;
     context->directionMode = directionMode;
     context->changeDirectionMode = _changeDirectionMode;
+    context->isRunOrWalk = get_isRunOrWalk();
     context->isRuning = get_isRuning();
     context->isMoving = get_isMoving();
     context->isPushing = get_isPushing();
@@ -593,17 +607,18 @@ void CharacterMovementComponent::set_context(const Ref<CharacterMovementData> &c
     movementState = (MOVEMENT_STATE)context->movementState;
     directionMode = (DIRECTION_MODE)context->directionMode;
     _changeDirectionMode = context->changeDirectionMode;
-    set_isRuning(context->isRuning);
-    set_isMoving(context->isMoving);
-    set_isPushing(context->isPushing);
-    set_isJumping(context->isJumping);
-    set_isWalking(context->isWalking);
+    isRunOrWalk = context->isRunOrWalk;
+    isRuning = context->isRuning;
+    isMoving = context->isMoving;
+    isPushing = context->isPushing;
+    isJumping = context->isJumping;
+    isWalking = context->isWalking;
     JumpKeyPressed = context->JumpKeyPressed;
-    set_isFalling(context->isFalling);
-    set_isDoingRotation(context->isDoingRotation);
-    set_inputDir(context->inputDir);
+    isFalling = context->isFalling;
+    isDoingRotation = context->isDoingRotation;
+    inputDir = context->inputDir;
     prevDirection = context->prevDirection;
-    set_direction(context->direction);
+    direction = context->direction;
 }
 
 

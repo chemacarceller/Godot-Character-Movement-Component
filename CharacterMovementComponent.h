@@ -7,6 +7,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/input_map.hpp>
 #include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
@@ -69,7 +70,7 @@ public:
     //  CONTINUOUS : The speed is kept
     //  FIFTY : Only the fifty percent os the speed is kept
     //  RESET : The speed is reset to ZERO
-    // TRANSITIONED : The speed and direction of previous speed is not modified
+    //  TRANSITIONED : The speed and direction of previous speed is not modified
     enum CHANGEDIRECTION_MODE {
         CONTINOUS,
         FIFTY,
@@ -273,7 +274,7 @@ private:
 
     bool isRunOrWalk = false;
     bool isRuning = false;
-    bool isWalking = false;
+    bool isWalking = true;
 
     //Indicates if the character is moving, it can be runing or walking, falling or jumping is not moving
     bool isMoving = false;
@@ -450,6 +451,7 @@ public:
             set_decelerationSpeed(get_decelerationSpeed());
         } else { }
     }
+
     bool get_isWalking() const { return isWalking; }
     void set_isWalking(bool value) {
         isWalking = value;
@@ -466,6 +468,7 @@ public:
             }
         } else {   }
     }
+
     bool get_isMoving() const { return isMoving; }
     void set_isMoving(bool value) { 
         isMoving = value; 
@@ -477,8 +480,10 @@ public:
             else {isRuning = false; isWalking=true;}
         }
     }
+
     bool get_isPushing() const { return isPushing; }
     void set_isPushing(bool value) { isPushing = value; }
+    
     bool get_isFalling() const { return isFalling; }
     void set_isFalling(bool value) { 
         isFalling = value; 
@@ -487,6 +492,7 @@ public:
             isMoving = false;
         } else {  }
     }
+
     bool get_isJumping() const { return isJumping; }
     void set_isJumping(bool value) { 
         isJumping = value; 
@@ -495,6 +501,7 @@ public:
             isMoving = false;
         } else {     }
     }
+    
     bool get_isDoingRotation() const { return isDoingRotation; }
     void set_isDoingRotation(bool value) { isDoingRotation = value; }
 
@@ -540,13 +547,14 @@ class CharacterMovementData : public RefCounted {
         CharacterMovementComponent::DIRECTION_MODE directionMode = CharacterMovementComponent::DIRECTION_MODE::NONE;
         CharacterMovementComponent::CHANGEDIRECTION_MODE changeDirectionMode = CharacterMovementComponent::CHANGEDIRECTION_MODE::FIFTY;
     
+        bool isRunOrWalk = false;
         bool isRuning = false;
+        bool isWalking = true;
         bool isMoving = false;
         bool isPushing = false;
         bool isJumping = false;
-        bool isWalking = false;
-        bool JumpKeyPressed = false;
         bool isFalling = false;
+        bool JumpKeyPressed = false;
         bool isDoingRotation = false;
     
         Vector2 inputDir = Vector2(0.0f, 0.0f);
