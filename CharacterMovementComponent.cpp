@@ -1,14 +1,5 @@
 #include "CharacterMovementComponent.h"
 
-// It provides the interface to ClassDB, Godot's internal database of all registered classes
-#include <godot_cpp/core/class_db.hpp>
-
-#include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/input_map.hpp>
-#include <godot_cpp/classes/input.hpp>
-#include <godot_cpp/classes/physics_server3d.hpp>
-#include <godot_cpp/variant/utility_functions.hpp>
-
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
 

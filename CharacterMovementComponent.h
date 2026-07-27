@@ -1,17 +1,12 @@
 #ifndef CHARACTER_MOVEMENT_COMPONENT_H
 #define CHARACTER_MOVEMENT_COMPONENT_H
 
-#include <godot_cpp/classes/node.hpp>
-#include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/character_body3d.hpp>
 #include <godot_cpp/classes/collision_shape3d.hpp>
-#include <godot_cpp/classes/kinematic_collision3d.hpp>
 #include <godot_cpp/classes/rigid_body3d.hpp>
-#include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/variant/string.hpp>
-#include <godot_cpp/variant/typed_array.hpp>
-#include <godot_cpp/variant/vector2.hpp>
-#include <godot_cpp/variant/vector3.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/input_map.hpp>
+#include <godot_cpp/classes/input.hpp>
 
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
@@ -272,27 +267,27 @@ private:
 
 
     // Flags indicating different states of the movementcomponent
-    // _isRuning indicates if the character is running or not at this momment
-    // _isWalking indicates if the character is walking or not at this momment
-    // isRunOrWalk indicates the state of avancing state true is Run, false is Walk
+    // isRuning indicates if the character should run if is moving
+    // isWalking indicates if the character should walk if is moving
+    // isRunOrWalk indicates the state of avancing state true is Run, false is Walk, used to change for runing or walking
 
     bool isRunOrWalk = false;
     bool isRuning = false;
     bool isWalking = false;
 
-    //Indicates if the character is moving, the opposite of idle
+    //Indicates if the character is moving, it can be runing or walking, falling or jumping is not moving
     bool isMoving = false;
 
     // isPushing indicates it is pushing something not used as a movement state jet
     bool isPushing = false;
 
-    // isJumping indicates it is in the jumping process, in this case it is moving
+    // isJumping indicates it is in the jumping process, in this case it is not moving
     bool isJumping = false;
 
     // Jumpkeypressed indicates that the jump key is pressed while on floor
     bool JumpKeyPressed = false;
 
-    // _isFalling indicates it is in the falling process, in this case it is moving
+    // _isFalling indicates it is in the falling process, in this case it is not moving
     bool isFalling = false;
 
     // isDoingRotation indicates it is doing the rotation
@@ -320,7 +315,7 @@ private:
     float rotStep = 0.0f;
 
     // Internal variable storing the offsets of each collision shape relative to the armature, calculated in _ready()
-    TypedArray<float> collisionHullsArrayOffset = godot::TypedArray<float>();
+    TypedArray<float> collisionHullsArrayOffset;
 
     float accelerationTime = _WALK_SPEED / _accelerationSpeed;
     float decelerationTime = _WALK_SPEED / _decelerationSpeed; 
@@ -440,8 +435,8 @@ public:
         if (_movementMode == MOVEMENT_MODE::ONESPEED) isRunOrWalk = true;
 
         // Setting the state of isRuning isWalking isJumping and isFalling depending on isRunOrWalk
-        if (isRunOrWalk && isMoving == true ) set_isRuning(true);
-        if (! isRunOrWalk && isMoving == true ) set_isWalking(true);
+        if (isRunOrWalk && isMoving) {isRuning = true; isWalking=false;}
+        if (! isRunOrWalk && isMoving ) {isRuning = false; isWalking=true;}
     }
 
     bool get_isRuning() const { return isRuning; }
@@ -478,8 +473,8 @@ public:
             isWalking = false;
             isRuning = false;
         } else {  
-            if (isRunOrWalk) set_isRuning(true);
-            else set_isWalking(true);
+            if (isRunOrWalk || _movementMode == MOVEMENT_MODE::ONESPEED) {isRuning = true; isWalking=false;}
+            else {isRuning = false; isWalking=true;}
         }
     }
     bool get_isPushing() const { return isPushing; }
