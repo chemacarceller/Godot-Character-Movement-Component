@@ -268,8 +268,7 @@ void CharacterMovementComponent::_physics_process(double delta) {
 
         if (existJumpInput) {
 
-            // && myCharacter->is_on_floor()
-            if (input->is_action_just_pressed(_jumpInput)) {
+            if (input->is_action_just_pressed(_jumpInput) && myCharacter->is_on_floor() ) {
                 set_isJumping(true);
                 JumpKeyPressed = true;
                 Vector3 velocity = myCharacter->get_velocity();
@@ -289,10 +288,38 @@ void CharacterMovementComponent::_physics_process(double delta) {
   
         if (! myCharacter->is_on_floor()) {
             if (! JumpKeyPressed) {
-                Vector3 velocity = myCharacter->get_velocity();
-                velocity += myCharacter->get_gravity() * (float)delta;
-                myCharacter->set_velocity(velocity);
-                if (! isJumping) set_isFalling(true);
+
+                // Obtener el estado del espacio físico de 3D
+                godot::World3D* world = myCharacter->get_world_3d().ptr();
+                godot::PhysicsDirectSpaceState3D* space_state = myCharacter->get_world_3d()->get_direct_space_state();
+        
+                if (space_state != nullptr) {
+                    // Definir el inicio (posición del personaje) y el fin (0.1 metros hacia abajo)
+                    godot::Vector3 start_pos = myCharacter->get_global_position();
+                    godot::Vector3 end_pos = start_pos + godot::Vector3(0.0f, -0.1f, 0.0f);
+            
+                    // Crear la consulta del Raycast
+                    godot::Ref<godot::PhysicsRayQueryParameters3D> query = godot::PhysicsRayQueryParameters3D::create(start_pos, end_pos);
+            
+                    // Opcional: Excluir al propio personaje del raycast para que no colisione consigo mismo
+                    godot::TypedArray<godot::RID> exclude;
+                    exclude.append(myCharacter->get_rid());
+                    query->set_exclude(exclude);
+            
+                    // Ejecutar el Raycast
+                    godot::Dictionary result = space_state->intersect_ray(query);
+            
+                    // 2. Condición matemática: Si el diccionario está vacío, no hay suelo a menos de 0.1m
+                    if (result.is_empty()) {
+
+                        // ¡ENTRA AQUÍ! El personaje está en el aire y a más de 0.1 metros del suelo
+                        // Tu lógica de C++ aquí
+                        Vector3 velocity = myCharacter->get_velocity();
+                        velocity += myCharacter->get_gravity() * (float)delta;
+                        myCharacter->set_velocity(velocity);
+                        if (! isJumping) set_isFalling(true);                
+                    }
+                }
             }
         } else {
             set_isFalling(false);

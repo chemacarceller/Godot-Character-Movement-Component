@@ -8,6 +8,9 @@
 #include <godot_cpp/classes/input_map.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/world3d.hpp> 
+#include <godot_cpp/classes/physics_direct_space_state3d.hpp>
+#include <godot_cpp/classes/physics_ray_query_parameters3d.hpp>
 
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
