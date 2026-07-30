@@ -105,95 +105,74 @@ private:
     // The underscore indicates that the variable is exported
 
     // Property to activate or deactivate the movement
-    /// Property to activate or deactivate the movement
     bool _isEnabled = true;
 
     // Movement mode
-    /// Movement mode
     MOVEMENT_MODE _movementMode = MOVEMENT_MODE::TWOSPEEDS;
     
     // Character settings
     // Specifies the character mass for calculating the impulse force
-    /// Specifies the character mass for calculating the impulse force
     float _characterMass = 75.0f;
 
     // Specifies the characterForceFactor for calculating the impulse force, how strong is the character
-    /// Specifies the characterForceFactor for calculating the impulse force, how strong is the character
     float _characterForceFactor = 1.0f;
 
     // Components and properties
 
     // Armature is used to rotate the character but not the camera
-    /// A Node3D that represents ths mesh to be rotated by this movement component
     Node3D *_armature = nullptr;
 
     // DirectionalObject is to set the Forward Direction
-    /// A Node3D that indicates que forward vector for the movement component
     Node3D *_directionalObject = nullptr;
 
     // The list of collisionHulls of the character so that they are also rotated when the armature is totated.
-    /// The list of collisionHulls of the character so that they are also rotated when the armature is totated.
     TypedArray<CollisionShape3D> _collisionHullsArray;
 
     //Indicates if the character should rotate or not, used if you want to provide with directional animations
-    ///Indicates if the character should rotate or not, used if you want to provide with directional animations
     bool _characterRotation = true;
 
     // Input actions setting
 
     // Left movement input action
-    /// Left movement input action
     String _leftInput = "";
 
     // Indicates when the pawn turns left if it should rotate
-    /// Indicates when the pawn turns left if it should rotate
     bool _leftRotationEnabled = true;
 
     // Right movement input action
-    /// Right movement input action
     String _rightInput = "";
 
     // Indicates when the pawn turns right if it should rotate
-    /// Indicates when the pawn turns right if it should rotate
     bool _rightRotationEnabled = true ;
 
     // Front movement input action
-    /// Front movement input action
     String _frontInput = "";
 
     // Indicates when the pawn turns front if it should rotate
-    /// Indicates when the pawn turns front if it should rotate
     bool _frontRotationEnabled = true;
 
     // Rear movement input action
-    /// Rear movement input action
     String _rearInput = "";
 
     // Indicates when the pawn turns rear if it should rotate
-    /// Indicates when the pawn turns rear if it should rotate
     bool _rearRotationEnabled = true;
 
     // Jump input action
-    /// Jump input action
     String _jumpInput = "";
 
 
     // Transition's settings
     
     // How fast the character increases speed in m/seg
-    /// How fast the character increases speed in m/seg
     float _accelerationSpeed = 15.0f;
     
-    // How fast the character reduces speed in m/seg
     // How fast the character reduces speed in m/seg
     float _decelerationSpeed = 15.0f;
 
     // How fast the character changes direction in seg
-    /// How fast the character changes direction in seg
     float _transitionTime = 0.25f;
 
     // Change Direction mode
-    /// Change Direction mode
     CHANGEDIRECTION_MODE _changeDirectionMode = CHANGEDIRECTION_MODE::FIFTY;
 
 
@@ -201,27 +180,21 @@ private:
     // Speed settings
 
     // WALK SPEED
-    /// WALK SPEED
     float _WALK_SPEED = 3.0f;
 
     // RUN SPEED
-    /// RUN SPEED
     float _RUN_SPEED = 6.0f;
 
     // MAX SPEED used in mode ONESPEED
-    /// MAX SPEED used in mode ONESPEED
     float _MAX_SPEED = 10.0f;
 
     // JUMP SPEED
-    /// JUMP SPEED
     float _JUMP_VELOCITY = 4.2f;
 
     // Speed is reducing by jumping, the speed during jumping is multiply by this factor
-    /// Speed is reducing by jumping, the speed during jumping is multiply by this factor
     float _SPEED_KEPT_BY_JUMPING = 0.4f;
 
     // Speed is reducing by falling, the speed during falling is multiply by this factor
-    /// Speed is reducing by falling, the speed during falling is multiply by this factor
     float _SPEED_KEPT_BY_FALLING = 0.4f;
 
 
@@ -230,11 +203,9 @@ private:
     // Pushing settings
 
     // The lowest value calculated for the massRatio between character and pushing object
-    /// The lowest value calculated for the massRatio between character and pushing object
     float _minMassRatioAllowed = 0.5f;
 
     // The highest value calculated for the massRatio between character and pushing object
-    /// The highest value calculated for the massRatio between character and pushing object
     float _maxMassRatioAllowed = 30.0f;
 
 
