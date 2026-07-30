@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="CharacterMovementComponent" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_context">
+			<return type="CharacterMovementData" />
+			<description>
+			</description>
+		</method>
+		<method name="get_direction" qualifiers="const">
+			<return type="Vector3" />
+			<description>
+			</description>
+		</method>
+		<method name="get_directionMode" qualifiers="const">
+			<return type="int" enum="CharacterMovementComponent.DIRECTION_MODE" />
+			<description>
+			</description>
+		</method>
+		<method name="get_inputDir" qualifiers="const">
+			<return type="Vector2" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isDoingRotation" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isFalling" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isJumping" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isMoving" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isPushing" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isRunOrWalk" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isRuning" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_isWalking" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="get_movementState" qualifiers="const">
+			<return type="int" enum="CharacterMovementComponent.MOVEMENT_STATE" />
+			<description>
+			</description>
+		</method>
+		<method name="get_speed" qualifiers="const">
+			<return type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="set_context">
+			<return type="void" />
+			<param index="0" name="context" type="CharacterMovementData" />
+			<description>
+			</description>
+		</method>
+		<method name="set_direction">
+			<return type="void" />
+			<param index="0" name="value" type="Vector3" />
+			<description>
+			</description>
+		</method>
+		<method name="set_directionMode">
+			<return type="void" />
+			<param index="0" name="value" type="int" enum="CharacterMovementComponent.DIRECTION_MODE" />
+			<description>
+			</description>
+		</method>
+		<method name="set_inputDir">
+			<return type="void" />
+			<param index="0" name="value" type="Vector2" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isDoingRotation">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isFalling">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isJumping">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isMoving">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isPushing">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isRunOrWalk">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isRuning">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_isWalking">
+			<return type="void" />
+			<param index="0" name="value" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_movementState">
+			<return type="void" />
+			<param index="0" name="value" type="int" enum="CharacterMovementComponent.MOVEMENT_STATE" />
+			<description>
+			</description>
+		</method>
+		<method name="set_speed">
+			<return type="void" />
+			<param index="0" name="value" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="start_movement">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="stop_movement">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="_JUMP_VELOCITY" type="float" setter="set_jump_velocity" getter="get_jump_velocity" default="4.2">
+		JUMP SPEED
+		</member>
+		<member name="_MAX_SPEED" type="float" setter="set_max_speed" getter="get_max_speed" default="10.0">
+		MAX SPEED used in mode ONESPEED
+		</member>
+		<member name="_RUN_SPEED" type="float" setter="set_run_speed" getter="get_run_speed" default="6.0">
+		RUN SPEED
+		</member>
+		<member name="_SPEED_KEPT_BY_FALLING" type="float" setter="set_speed_kept_by_falling" getter="get_speed_kept_by_falling" default="0.4">
+		Speed is reducing by falling, the speed during falling is multiply by this factor
+		</member>
+		<member name="_SPEED_KEPT_BY_JUMPING" type="float" setter="set_speed_kept_by_jumping" getter="get_speed_kept_by_jumping" default="0.4">
+		Speed is reducing by jumping, the speed during jumping is multiply by this factor
+		</member>
+		<member name="_WALK_SPEED" type="float" setter="set_walk_speed" getter="get_walk_speed" default="3.0">
+		WALK SPEED
+		</member>
+		<member name="_accelerationSpeed" type="float" setter="set_accelerationSpeed" getter="get_accelerationSpeed" default="15.0">
+		How fast the character increases speed in m/seg
+		</member>
+		<member name="_armature" type="Node3D" setter="set_armature" getter="get_armature">
+		A Node3D that represents ths mesh to be rotated by this movement component
+		</member>
+		<member name="_changeDirectionMode" type="int" setter="set_changeDirectionMode" getter="get_changeDirectionMode" enum="CharacterMovementComponent.CHANGEDIRECTION_MODE" default="1">
+		Change Direction mode
+		</member>
+		<member name="_characterForceFactor" type="float" setter="set_characterForceFactor" getter="get_characterForceFactor" default="1.0">
+		Specifies the characterForceFactor for calculating the impulse force, how strong is the character
+		</member>
+		<member name="_characterMass" type="float" setter="set_characterMass" getter="get_characterMass" default="75.0">
+		Specifies the character mass for calculating the impulse force
+		</member>
+		<member name="_characterRotation" type="bool" setter="set_characterRotation" getter="get_characterRotation" default="true">
+		Indicates if the character should rotate or not, used if you want to provide with directional animations
+		</member>
+		<member name="_collisionHullsArray" type="CollisionShape3D[]" setter="set_collisionHullsArray" getter="get_collisionHullsArray" default="[]">
+		The list of collisionHulls of the character so that they are also rotated when the armature is totated.
+		</member>
+		<member name="_decelerationSpeed" type="float" setter="set_decelerationSpeed" getter="get_decelerationSpeed" default="15.0">
+		How fast the character reduces speed in m/seg
+		</member>
+		<member name="_directionalObject" type="Node3D" setter="set_directionalObject" getter="get_directionalObject">
+		A Node3D that indicates que forward vector for the movement component
+		</member>
+		<member name="_frontInput" type="String" setter="set_frontInput" getter="get_frontInput" default="&quot;&quot;">
+		Front movement input action
+		</member>
+		<member name="_frontRotationEnabled" type="bool" setter="set_frontRotationEnabled" getter="get_frontRotationEnabled" default="true">
+		Indicates when the pawn turns front if it should rotate
+		</member>
+		<member name="_isEnabled" type="bool" setter="set_enabled" getter="is_enabled" default="true">
+		Property to activate or deactivate the movement
+		</member>
+		<member name="_jumpInput" type="String" setter="set_jumpInput" getter="get_jumpInput" default="&quot;&quot;">
+		Jump input action
+		</member>
+		<member name="_leftInput" type="String" setter="set_leftInput" getter="get_leftInput" default="&quot;&quot;">
+		Left movement input action
+		</member>
+		<member name="_leftRotationEnabled" type="bool" setter="set_leftRotationEnabled" getter="get_leftRotationEnabled" default="true">
+		Indicates when the pawn turns left if it should rotate
+		</member>
+		<member name="_maxMassRatioAllowed" type="float" setter="set_maxMassRatioAllowed" getter="get_maxMassRatioAllowed" default="30.0">
+		The highest value calculated for the massRatio between character and pushing object
+		</member>
+		<member name="_minMassRatioAllowed" type="float" setter="set_minMassRatioAllowed" getter="get_minMassRatioAllowed" default="0.5">
+		The lowest value calculated for the massRatio between character and pushing object
+		</member>
+		<member name="_movementMode" type="int" setter="set_movementMode" getter="get_movementMode" enum="CharacterMovementComponent.MOVEMENT_MODE" default="1">
+		Movement mode
+		</member>
+		<member name="_rearInput" type="String" setter="set_rearInput" getter="get_rearInput" default="&quot;&quot;">
+		Rear movement input action
+		</member>
+		<member name="_rearRotationEnabled" type="bool" setter="set_rearRotationEnabled" getter="get_rearRotationEnabled" default="true">
+		Indicates when the pawn turns rear if it should rotate
+		</member>
+		<member name="_rightInput" type="String" setter="set_rightInput" getter="get_rightInput" default="&quot;&quot;">
+		Right movement input action
+		</member>
+		<member name="_rightRotationEnabled" type="bool" setter="set_rightRotationEnabled" getter="get_rightRotationEnabled" default="true">
+		Indicates when the pawn turns right if it should rotate
+		</member>
+		<member name="_transitionTime" type="float" setter="set_transitionTime" getter="get_transitionTime" default="0.25">
+		How fast the character changes direction in seg
+		</member>
+	</members>
+	<signals>
+		<signal name="DIRECTION_MODE_CHANGED">
+			<param index="0" name="data" type="int" />
+			<description>
+			</description>
+		</signal>
+		<signal name="MOVEMENT_STATE_CHANGED">
+			<param index="0" name="data" type="int" />
+			<description>
+			</description>
+		</signal>
+	</signals>
+	<constants>
+		<constant name="IDLE" value="1" enum="MOVEMENT_STATE">
+		</constant>
+		<constant name="WALKING" value="2" enum="MOVEMENT_STATE">
+		</constant>
+		<constant name="RUNING" value="3" enum="MOVEMENT_STATE">
+		</constant>
+		<constant name="JUMPING" value="4" enum="MOVEMENT_STATE">
+		</constant>
+		<constant name="FALLING" value="5" enum="MOVEMENT_STATE">
+		</constant>
+		<constant name="ONESPEED" value="0" enum="MOVEMENT_MODE">
+		ONESPEED -> the character moves only with a speed it is the MAX_SPEER that correspon with RUN_SPEED
+		</constant>
+		<constant name="TWOSPEEDS" value="1" enum="MOVEMENT_MODE">
+		TWOSPEEDS -> there is a walk and run speed and can changed from one to another
+		</constant>
+		<constant name="CONTINOUS" value="0" enum="CHANGEDIRECTION_MODE">
+		CONTINUOUS : The speed is kept
+		</constant>
+		<constant name="FIFTY" value="1" enum="CHANGEDIRECTION_MODE">
+		FIFTY : Only the fifty percent os the speed is kept
+		</constant>
+		<constant name="RESET" value="2" enum="CHANGEDIRECTION_MODE">
+		RESET : The speed is reset to ZERO
+		</constant>
+		<constant name="TRANSITIONED" value="3" enum="CHANGEDIRECTION_MODE">
+		TRANSITIONED : The speed and direction of previous speed is not modified
+		</constant>
+		<constant name="NONE" value="1" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="STRAIFLEFT" value="2" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="LEFTFOR" value="3" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="LEFTBACK" value="4" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="STRAIFRIGHT" value="5" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="RIGHTFOR" value="6" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="RIGHTBACK" value="7" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="FORWARD" value="8" enum="DIRECTION_MODE">
+		</constant>
+		<constant name="BACKWARD" value="9" enum="DIRECTION_MODE">
+		</constant>
+	</constants>
+</class>
