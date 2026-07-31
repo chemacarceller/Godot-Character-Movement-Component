@@ -57,6 +57,8 @@ void CharacterMovementComponent::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_transitionTime"), &CharacterMovementComponent::get_transitionTime);
     ClassDB::bind_method(D_METHOD("set_changeDirectionMode", "value"), &CharacterMovementComponent::set_changeDirectionMode);
     ClassDB::bind_method(D_METHOD("get_changeDirectionMode"), &CharacterMovementComponent::get_changeDirectionMode);
+    ClassDB::bind_method(D_METHOD("set_changeModeDelay", "value"), &CharacterMovementComponent::set_changeModeDelay);
+    ClassDB::bind_method(D_METHOD("get_changeModeDelay"), &CharacterMovementComponent::get_changeModeDelay);
 
     ClassDB::bind_method(D_METHOD("set_walk_speed", "value"), &CharacterMovementComponent::set_walk_speed);
     ClassDB::bind_method(D_METHOD("get_walk_speed"), &CharacterMovementComponent::get_walk_speed);
@@ -87,7 +89,7 @@ void CharacterMovementComponent::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_speed", "value"), &CharacterMovementComponent::set_speed);
 
     ClassDB::bind_method(D_METHOD("get_isRunOrWalk"), &CharacterMovementComponent::get_isRunOrWalk);
-    ClassDB::bind_method(D_METHOD("set_isRunOrWalk", "value"), &CharacterMovementComponent::set_isRunOrWalk);
+    ClassDB::bind_method(D_METHOD("set_isRunOrWalk", "value1", "value2"), &CharacterMovementComponent::set_isRunOrWalk);
     ClassDB::bind_method(D_METHOD("get_isRuning"), &CharacterMovementComponent::get_isRuning);
     ClassDB::bind_method(D_METHOD("set_isRuning", "value"), &CharacterMovementComponent::set_isRuning);
     ClassDB::bind_method(D_METHOD("get_isWalking"), &CharacterMovementComponent::get_isWalking);
@@ -149,6 +151,7 @@ void CharacterMovementComponent::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "_decelerationSpeed", PROPERTY_HINT_RANGE, "0.1,30"), "set_decelerationSpeed", "get_decelerationSpeed");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "_transitionTime", PROPERTY_HINT_RANGE, "0.01,1"), "set_transitionTime", "get_transitionTime");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "_changeDirectionMode", PROPERTY_HINT_ENUM, "CONTINOUS,FIFTY,RESET,TRANSITIONED"), "set_changeDirectionMode", "get_changeDirectionMode");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "_changeModeDelay", PROPERTY_HINT_RANGE, "0.01,5"), "set_changeModeDelay", "get_changeModeDelay");
 
     ADD_GROUP("Speed settings", "");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "_WALK_SPEED", PROPERTY_HINT_RANGE, "1,4"), "set_walk_speed", "get_walk_speed");
@@ -259,6 +262,10 @@ void CharacterMovementComponent::_ready() {
 }
 
 void CharacterMovementComponent::_physics_process(double delta) {
+
+    // Managing the possible timer
+    myTimer.update(delta);
+
     if (Engine::get_singleton()->is_editor_hint()) return;
 
     float _rotationAngle = 0.0f;
@@ -317,7 +324,9 @@ void CharacterMovementComponent::_physics_process(double delta) {
                         Vector3 velocity = myCharacter->get_velocity();
                         velocity += myCharacter->get_gravity() * (float)delta;
                         myCharacter->set_velocity(velocity);
-                        if (! isJumping) set_isFalling(true);                
+                        if (! isJumping) { 
+                            set_isFalling(true);                
+                        }
                     }
                 }
             }
@@ -581,6 +590,7 @@ void CharacterMovementComponent::process_armature_rotation(double delta) {
         rotStep += (float)delta / _transitionTime;
     } else {
         set_isDoingRotation(false);
+        emit_signal("DIRECTION_MODE_CHANGED", DIRECTION_MODE::DM_NOTDEFINED);
     }
 }
 

@@ -12,8 +12,39 @@
 #include <godot_cpp/classes/physics_direct_space_state3d.hpp>
 #include <godot_cpp/classes/physics_ray_query_parameters3d.hpp>
 
+
+
+
+#include <godot_cpp/variant/utility_functions.hpp>
 // Using the godot namespace to avoid prefixing all Godot classes with 'godot::'
 using namespace godot;
+
+// Creating an internal timer
+struct InternalTimer {
+    double target = 0.0;
+    double current = 0.0;
+    bool running = false;
+    bool* target_flag = nullptr;
+
+    void start(double secs, bool* flag_to_update) {
+        if (!running) {
+            target = secs;
+            current = 0.0;
+            running = true;
+            target_flag = flag_to_update;
+            *target_flag = false;
+        }
+    }
+
+    void update(double delta) {
+        if (!running) return;
+        current += delta;
+        if (current >= target) {
+            *target_flag = true;
+            running = false;
+        }
+    }
+};
 
 // We indicate that the struct CharacterMovementData is defined after CharacterMovementComponent
 class CharacterMovementData;
@@ -175,7 +206,8 @@ private:
     // Change Direction mode
     CHANGEDIRECTION_MODE _changeDirectionMode = CHANGEDIRECTION_MODE::FIFTY;
 
-
+    // Change Mode Delay
+    float _changeModeDelay = 3.0f;
 
     // Speed settings
 
@@ -295,6 +327,11 @@ private:
     float accelerationTime = _WALK_SPEED / _accelerationSpeed;
     float decelerationTime = _WALK_SPEED / _decelerationSpeed; 
 
+
+    // Creating a Timer and the Flag it controls
+    InternalTimer myTimer;
+    bool changeModeEnabled = true;
+
     // --- INTERNAL METHODS ---
 
     void pushAwwayRigidbody();
@@ -366,13 +403,14 @@ public:
     float get_transitionTime() const { return _transitionTime; }
     void set_changeDirectionMode(const CHANGEDIRECTION_MODE value) { _changeDirectionMode = value; notify_property_list_changed(); }
     CHANGEDIRECTION_MODE get_changeDirectionMode() const { return _changeDirectionMode; }
-
+    void set_changeModeDelay(const float value) { _changeModeDelay = value; }
+    float get_changeModeDelay() const { return _changeModeDelay; }
 
     void set_walk_speed(const float value) { _WALK_SPEED = value; }
     float get_walk_speed() const { return _WALK_SPEED; }
     void set_run_speed(const float value) { _RUN_SPEED = value; }
     float get_run_speed() const { return _RUN_SPEED; }
-    void set_max_speed(const float value) { _MAX_SPEED = value; _RUN_SPEED = _MAX_SPEED; set_isRunOrWalk(true); }
+    void set_max_speed(const float value) { _MAX_SPEED = value; _RUN_SPEED = _MAX_SPEED; set_isRunOrWalk(true, false); }
     float get_max_speed() const { return _MAX_SPEED; }
     void set_jump_velocity(const float value) { _JUMP_VELOCITY = value; }
     float get_jump_velocity() const { return _JUMP_VELOCITY; }
@@ -401,17 +439,21 @@ public:
     void set_speed(float value) { speed = value; }
 
     bool get_isRunOrWalk() const { return isRunOrWalk; }
-    void set_isRunOrWalk(bool value) {
-        isRuning = false;
-        isWalking = false;
-        isRunOrWalk = value;
+    void set_isRunOrWalk(bool value, bool activateTimer) {
+        if (changeModeEnabled || !activateTimer) {
+            isRuning = false;
+            isWalking = false;
+            isRunOrWalk = value;
         
-        // if the mode is ONESPEED pnly Run is possible
-        if (_movementMode == MOVEMENT_MODE::ONESPEED) isRunOrWalk = true;
+            // if the mode is ONESPEED pnly Run is possible
+            if (_movementMode == MOVEMENT_MODE::ONESPEED) isRunOrWalk = true;
 
-        // Setting the state of isRuning isWalking isJumping and isFalling depending on isRunOrWalk
-        if (isRunOrWalk && isMoving) {isRuning = true; isWalking=false;}
-        if (! isRunOrWalk && isMoving ) {isRuning = false; isWalking=true;}
+            // Setting the state of isRuning isWalking isJumping and isFalling depending on isRunOrWalk
+            if (isRunOrWalk && isMoving) {isRuning = true; isWalking=false;}
+            if (! isRunOrWalk && isMoving ) {isRuning = false; isWalking=true;}
+
+            if (activateTimer) myTimer.start(_changeModeDelay, &changeModeEnabled);
+        }
     }
 
     bool get_isRuning() const { return isRuning; }
