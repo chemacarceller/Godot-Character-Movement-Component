@@ -260,6 +260,9 @@
 		<member name="_transitionTime" type="float" setter="set_transitionTime" getter="get_transitionTime" default="0.25">
 		How fast the character changes direction in seg
 		</member>
+		<member name="_changeModeDelay" type="float" setter="set_changeModeDelay" getter="get_changeModeDelay" default="0.25">
+		Change Mode Delay
+		</member>
 	</members>
 	<signals>
 		<signal name="DIRECTION_MODE_CHANGED">
